@@ -1,0 +1,22 @@
+category,component,manufacturer,part_number,details,quantity,status,notes,url
+controller,Raspberry Pi Zero 2 W,Raspberry Pi,,Main controller,1,required,Single-board computer,
+network,Waveshare USB Ethernet HUB HAT for Raspberry Pi Zero,Waveshare,,Gigabit Ethernet and USB connectivity,1,required,Required for wired network connection,https://www.kiwi-electronics.com/nl/poe-ethernet-usb-hub-hat-voor-rpi-zero-10711
+thermal,Waveshare aluminium heatsink,Waveshare,,Thermal management,1,required,For Raspberry Pi Zero 2 W,https://elektronicavoorjou.nl/product/heatsink-raspberry-pi-zero/
+isolation,2-channel optocoupler module,,,Signal isolation,1,required,Doorbell sensor,https://www.tinytronics.nl/en/switches/optocouplers/optocoupler-isolation-module-2-channels
+power,100uF 35V capacitor,,,Power conditioning,1,required,Added during assembly,
+protection,1N4148 diode,,,Doorbell signal protection,1,required,100V 100mA signal diode,https://www.conrad.nl/nl/p/diotec-ultrasnelle-si-diode-1n4148-sod-27-75-v-150-ma-162280.html
+connector,GX12-3 connector,,,Water sensor connection,2,required,,https://www.tinytronics.nl/en/cables-and-connectors/connectors/aviation-style/gx12/gx12-3-connector-set
+connector,GX12-4 connector,,,Doorbell sensor and control connection,1,required,,https://www.tinytronics.nl/en/cables-and-connectors/connectors/aviation-style/gx12/gx12-4-connector-set
+connector,GX12-2 connector,,,Optional ventilation fan connection,1,optional,,https://www.tinytronics.nl/en/cables-and-connectors/connectors/aviation-style/gx12/gx12-2-connector-set
+network,Panel-mount Ethernet extension cable,,,Ethernet connection,1,required,,https://www.kiwi-electronics.com/nl/panel-mount-ethernet-verlengkabel-2542
+power,Delock Micro USB connector,Delock,,Power input,1,required,,https://www.reichelt.com/nl/nl/shop/product/usb_2_0-kabel_micro_b-bus_naar_micro_b-stekker_0_25_m-212024
+connector,Removable screw terminal 2-pin 3.81mm,,,Terminal connection,1,required,,https://www.tinytronics.nl/en/cables-and-connectors/connectors/screw-terminals/removable-screw-terminal-2p-3.81mm
+sensor,YF-B6 water flow sensor,,,Water measurement,1,required,G3/4 inch,https://www.tinytronics.nl/en/sensors/liquid/yf-b6-water-flow-sensor-brass-g3-4
+enclosure,BOX4U industrial enclosure,,,Enclosure,1,required,125 x 115 x 58 mm IP65,https://www.reichelt.com/nl/nl/shop/product/industriele_behuizing_125_x_115_x_58_mm_ip65_lichtgrijs-324314
+enclosure,Kradex enclosure,Kradex,,Alternative enclosure,1,alternative,176 x 126 x 57 mm IP65; used for an earlier version,
+control,5V 2-channel relay module,,,Doorbell control,1,required,High-active or low-active variant,https://www.tinytronics.nl/en/switches/relays/relay-modules/5v-relay-2-channel-high-active-or-low-active
+assembly,Wago clamps,,,Terminal connections,as required,required,,
+connector,3-way JST-SM extension cable,,,Water sensor cable,1,required,,https://www.kiwi-electronics.com/nl/3-weg-jst-sm-verlengkabel-1-meter-1123
+assembly,Laser-cut mounting plate,,,Internal mounting,1,required,,
+assembly,PCB prototyping board,,,Small wiring board,1,required,Approximately 6 x 12 holes,
+assembly,Jumper cables heat shrink and masking tape,,,Wiring and assembly,as required,required,,

@@ -1,0 +1,46 @@
+connectors:
+  PI Zero W2:
+    pins: [GND, 5V, GPIO23]
+
+  GX12:
+    type: GX12-3
+    pins: [1, 2, 3]
+
+  Water sensor:
+    pins: [GND, 5V, SIG]
+
+cables:
+  W_PI_GX12:
+    wirecount: 3
+    colors: [BK, RD, YE]
+    show_name: False
+    show_wirecount: False
+
+  W_GX12_SENSOR:
+    wirecount: 3
+    colors: [BK, RD, YE]
+    show_name: False
+    show_wirecount: False
+
+connections:
+  - - PI Zero W2: [GND, 5V, GPIO23]
+    - W_PI_GX12: [1, 2, 3]
+    - GX12: [1, 2, 3]
+
+  - - GX12: [1, 2, 3]
+    - W_GX12_SENSOR: [1, 2, 3]
+    - Water sensor: [GND, 5V, SIG]
+    
+tweak:
+  override:
+    graph:
+      ranksep: "0.5"
+    W_PI_GX12:
+      shape: none
+      fontsize: "1"
+      fontcolor: white
+      
+    W_GX12_SENSOR:
+      shape: none
+      fontsize: "1"
+      fontcolor: white
