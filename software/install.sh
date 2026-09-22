@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-service_name="mk_controller"
+service_name="G-controller"
 service_user="${SUDO_USER:-${USER}}"
-install_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+service_group="$(id -gn "$service_user")"
+install_dir=""
 broker=""
 port="1883"
 username=""
 password=""
-location="meterkast"
+location="Garage"
 rate="300"
 
 usage() {
@@ -17,7 +18,7 @@ Usage: sudo $0 --broker HOST [options]
 
 Options:
   --service-name NAME  systemd service name (default: ${service_name})
-  --install-dir PATH   repository directory (default: ${install_dir})
+	--install-dir PATH   application directory (default: /opt/${service_name})
   --broker HOST       MQTT broker hostname or IP address (required)
   --port PORT         MQTT port (default: ${port})
   --username USER     MQTT username
@@ -44,6 +45,10 @@ while [[ $# -gt 0 ]]; do
 done
 
 [[ "$service_name" =~ ^[A-Za-z0-9_.@-]+$ ]] || { echo "Invalid service name: $service_name" >&2; exit 2; }
+if [[ -z "$install_dir" ]]; then
+	install_dir="/opt/${service_name}"
+	sudo install -d -o "$service_user" -g "$service_group" "$install_dir"
+fi
 install_dir="$(cd -- "$install_dir" && pwd)"
 env_file="/etc/${service_name}.env"
 [[ -n "$broker" ]] || { echo "MQTT broker is required." >&2; usage; exit 2; }
@@ -67,7 +72,7 @@ EOF
 
 sudo tee "/etc/systemd/system/${service_name}.service" >/dev/null <<EOF
 [Unit]
-Description=HMD-DGB service for the MKcontroller
+Description=HMD-DGB service for the ${service_name}
 After=network-online.target
 Wants=network-online.target
 
@@ -76,7 +81,7 @@ Type=simple
 User=${service_user}
 WorkingDirectory=${install_dir}
 EnvironmentFile=${env_file}
-ExecStart=${install_dir}/venv/bin/python3 -m DGB.DGBservice --name "MK-controller" --broker "\${MQTT_BROKER}" --port "\${MQTT_PORT}" --username "\${MQTT_USERNAME}" --password "\${MQTT_PASSWORD}" --location "\${DGB_LOCATION}" --rate "\${DGB_RATE}"
+ExecStart=${install_dir}/venv/bin/python3 -m DGB.DGBservice --name "${service_name}" --broker "\${MQTT_BROKER}" --port "\${MQTT_PORT}" --username "\${MQTT_USERNAME}" --password "\${MQTT_PASSWORD}" --location "\${DGB_LOCATION}" --rate "\${DGB_RATE}"
 Restart=always
 RestartSec=15s
 

@@ -1,186 +1,134 @@
-alias: Configureer DGB services
-description: ""
+alias: Configure DGB services
+description: "Garage services"
 triggers:
-  - alias: MK-controller-bel
+  - alias: G-controller-rol-deur
     action: mqtt.publish
     metadata: {}
     data:
       qos: "2"
       retain: true
+      topic: config/G-controller/devices/rol-deur
       payload: |
         {
           "Devices": [
-            {"EntityInfo": 
+            {"EntityInfo":
                 {
-                  "component": "binary_sensor",
-                  "name": "Deurbel detectie",
+                  "component": "cover",
+                  "name": "Rol deur",
                   "qos": 2,
-                  "unique_id": "192-168-70-28-binary-sensor-deurbel",
-                  "device_class": "sound",
-                  "device":   
+                  "unique_id": "192-168-70-22-cover-rol-deur",
+                  "device_class": "garage",
+                  "direct_state_transition": false,
+                  "device":
                     {
-                      "name": "Deurbel",
-                      "model": "Knop",
-                      "identifiers": "lvb11-deurbel",
-                      "configuration_url": "http://192-168-70-28",
-                      "suggested_area": "meterkast"
+                      "name": "Rol-deur",
+                      "model": "Garage rol-deur",
+                      "identifiers": "g-rol-deur",
+                      "configuration_url": "http://192-168-70-22",
+                      "suggested_area": "garage"
                     }
-              }
+                }
             },
-            {"EntityInfo": 
+            {"EntityInfo":
                 {
                   "component": "switch",
-                  "name": "Deurbel aan/uit",
+                  "name": "Rol-deur actief",
                   "qos": 2,
-                  "unique_id": "192-168-70-28-switch-deurbel-aan-uit",
-                  "device":   
+                  "unique_id": "192-168-70-22-switch-rol-deur-lock",
+                  "icon": "mdi:key-chain-variant",
+                  "device":
                     {
-                      "name": "Deurbel",
-                      "model": "Knop",
-                      "identifiers": "lvb11-deurbel",
-                      "configuration_url": "http://192-168-70-28",
-                      "suggested_area": "meterkast"
+                      "name": "Rol-deur",
+                      "model": "Garage rol-deur",
+                      "identifiers": "g-rol-deur",
+                      "configuration_url": "http://192-168-70-22",
+                      "suggested_area": "garage"
                     }
                 }
+            },
             }
           ],
-          "Pins": [ 
-              {"PinInfo": 
+          "Pins": [
+              {"PinInfo":
                 {
-                  "pin": 26, 
-                  "ptype": "out", 
-                  "initial": 0, 
-                  "value": 1, 
-                  "inverted": 1
+                  "pin": 24,
+                  "ptype": "out",
+                  "initial": 0,
+                  "value": 0,
+                  "active_state": false,
+                  "blink": 1
                 }
               },
-              {"PinInfo": 
+              {"PinInfo":
                 {
-                  "pin": 25, 
-                  "ptype": "in", 
+                  "pin": 19,
+                  "ptype": "in",
+                  "pull_up": true
+                }
+              },
+              {"PinInfo":
+                {
+                  "pin": 26,
+                  "ptype": "in",
+                  "pull_up": true
+                }
+              },
+              {"PinInfo":
+                {
+                  "pin": 13,
+                  "ptype": "in",
                   "pull_up": true
                 }
               }
             ],
-          "state_initialization": {
-            "retain_state": [
-              {"unique_id": "26", "call": ["set_state"]},
-              {"unique_id": "192-168-70-28-switch-deurbel-aan-uit", "call": ["set_state"]}
-            ]
-          },
           "Bindings": [
-            {"BindInfo": { 
-              "pin_25_to_deurbel_detectie": 
+            {"BindInfo": {
+              "roller_door_lock$state":
                 {
-                  "p_on": {
-                      "all": [{"m": {"$and": [{"unique_id": "25"}, {"payload": 1}]}}],
-                      "run": {"action": {"unique_id": "192-168-70-28-binary-sensor-deurbel", "call": "on"}}
-                  },
-                  "p_off": {
-                      "all": [{"m": {"$and": [{"unique_id": "25"}, {"payload": 0}]}}],
-                      "run": {"action": {"unique_id": "192-168-70-28-binary-sensor-deurbel", "call": "off"}}
-                  }
-                }
-              }    
-            },
-            {"BindInfo": { 
-              "pin_26_deurbel_on_off": 
-                {
-                  "p_on": {
-                      "all": [{"m": {"$and": [{"unique_id": "192-168-70-28-switch-deurbel-aan-uit"}, {"payload": "ON"}]}}],
-                      "run": {"action": {"unique_id": "26", "call": "off"}}
-                  },
-                  "p_off": {
-                      "all": [{"m": {"$and": [{"unique_id": "192-168-70-28-switch-deurbel-aan-uit"}, {"payload": "OFF"}]}}],
-                      "run": {"action": {"unique_id": "26", "call": "on"}}
-                  }
-                }
-              }    
-            }
-          ]
-        }
-      topic: config/MK-controller/devices/deurbel
-    enabled: true
-  - alias: MK-controller-water
-    action: mqtt.publish
-    metadata: {}
-    data:
-      qos: "2"
-      retain: true
-      payload: |-
-        {
-          "Devices": [
-            {"EntityInfo": 
-                {
-                  "component": "sensor",
-                  "name": "Hard water volume",
-                  "qos": 0,
-                  "unique_id": "192-168-70-28-sensor-hard-water-volume",
-                  "device_class": "water",
-                  "unit_of_measurement": "m³",
-                  "state_class": "total_increasing",
-                  "device":   
-                    {
-                      "name": "Water meter",
-                      "model": "YF-B6",
-                      "identifiers": "lvb11-water-meter",
-                      "configuration_url": "https://www.tinytronics.nl/nl/sensoren/vloeistof/yf-b6-water-flow-sensor-met-temperatuur-sensor-messing-g3-4",
-                      "suggested_area": "meterkast"
+                  "start": {"t_0": {"to": "locked"}},
+                  "locked": {
+                    "t_unlock": {
+                      "all": [{"m": {"$and": [{"unique_id": "192-168-70-22-switch-rol-deur-lock"}, {"payload": "ON"}]}}],
+                      "to": "unlocked",
+                      "run": [
+                        {"timer": {"name": "AutoLock", "action": "start", "seconds": 5}},
+                        {"log": {"msg": "rol-deur unlocked for 5 seconds"}}
+                      ]
+                    },
+                    "t_command_blocked": {
+                      "all": [{"m": {"$and": [{"unique_id": "192-168-70-22-cover-rol-deur"}, {"$or": [{"payload": "OPEN"}, {"payload": "CLOSE"}, {"payload": "STOP"}]}]}}],
+                      "to": "locked",
+                      "run": {"log": {"msg": "rol-deur command ignored, lock is engaged"}}
                     }
-                }
-            },
-            {"EntityInfo": 
-                {
-                  "component": "sensor",
-                  "name": "Hard water stroom",
-                  "qos": 0,
-                  "unique_id": "192-168-70-28-sensor-hard-water-stroom",
-                  "device_class": "volume_flow_rate",
-                  "unit_of_measurement": "L/min",
-                  "state_class": "measurement",
-                  "device":   
-                    {
-                      "name": "Water meter",
-                      "model": "YF-B6",
-                      "identifiers": "lvb11-water-meter",
-                      "configuration_url": "https://www.tinytronics.nl/nl/sensoren/vloeistof/yf-b6-water-flow-sensor-met-temperatuur-sensor-messing-g3-4",
-                      "suggested_area": "meterkast"
+                  },
+                  "unlocked": {
+                    "t_command": {
+                      "all": [{"m": {"$and": [{"unique_id": "192-168-70-22-cover-rol-deur"}, {"$or": [{"payload": "OPEN"}, {"payload": "CLOSE"}, {"payload": "STOP"}]}]}}],
+                      "to": "locked",
+                      "run": [
+                        {"timer": {"name": "AutoLock", "action": "cancel"}},
+                        {"action": {"unique_id": "24", "call": "set_state", "args": [{"state_name": "blink", "state": 1}]}},
+                        {"action": {"unique_id": "192-168-70-22-switch-rol-deur-lock", "call": "off"}}
+                      ]
+                    },
+                    "t_lock": {
+                      "all": [{"m": {"$and": [{"unique_id": "192-168-70-22-switch-rol-deur-lock"}, {"payload": "OFF"}]}}],
+                      "to": "locked",
+                      "run": {"timer": {"name": "AutoLock", "action": "cancel"}}
+                    },
+                    "t_timeout": {
+                      "all": [{"m": {"timeout": "AutoLock"}}],
+                      "to": "locked",
+                      "run": [
+                        {"action": {"unique_id": "192-168-70-22-switch-rol-deur-lock", "call": "off"}},
+                        {"log": {"msg": "timeout while waiting for a rol-deur command, lock engaged"}}
+                      ]
                     }
-                }
-            }
-
-            
-          ],
-          "Pins": [ 
-              {"PinInfo": 
-                {
-                  "pin": 23, 
-                  "ptype": "count", 
-                  "pull_up": true,
-                  "when_deactivated": false,
-                  "scaling_factor": 396000
+                  }
                 }
               }
-            ],
-          "state_initialization": {
-            "retain_state": [
-              {"unique_id": "23", "call": ["set_state"]}
-            ]
-          },
-          "Bindings": [
-            {"BindInfo": { 
-              "pin_23_to_hard_water_meter-volume": 
-                {
-                  "p_on": {
-                      "count": 500,
-                      "all": [{"m": {"$and": [{"unique_id": "23"}, {"$ex": {"payload": 1}}]}}],
-                      "run": {"action": {"unique_id": "192-168-70-28-sensor-hard-water-volume", "call": "set_state", "args": [{"state_name": "state", "state": "$m.payload"}]}}
-                  }
-                }
-              }    
             }
           ]
         }
-      topic: config/MK-controller/devices/water
     enabled: true
 mode: single
