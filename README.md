@@ -1,5 +1,7 @@
 # Gcontroller
 
+**!WORK IN PROGRES! content is not representative for Gcontroller yet**
+
 [HMD-DGB](https://github.com/jvanoosterhout/HMD-DGB) usage example with hardware and configuration to make dumb systems in my Garage (Dutch: Garage → G) smart and connect them to Home Assistant.
 
 ![Finished Gcontroller](images/IMG_5988.jpeg)
