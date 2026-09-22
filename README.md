@@ -119,7 +119,19 @@ python3 software/generate-bom-table.py
 ## Pinout & Wiring
 
 ### GPIO Assignments
-
+<!-- # garage_deur = 24
+# g_roldeur_actief_sensor = 13
+# g_roldeur_open_sensor = 19
+# g_roldeur_dicht_sensor = 26
+# lose IO = (rood/zwart) = 4
+# lose IO = (groen/geel) = 18
+# valve1 = 21
+# valve2 = 20
+# valve3 = 16
+# valve4 = 12 
+# valve5 = 7
+# valve6 = 8
+# spare = 25 -->
 
 
 <!-- | Function | GPIO (BCM) | Notes |
