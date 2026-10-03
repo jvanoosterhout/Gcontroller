@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-service_name="G-controller"
+service_name="Gcontroller"
 service_user="${SUDO_USER:-${USER}}"
 service_group="$(id -gn "$service_user")"
 install_dir=""
@@ -58,7 +58,7 @@ sudo apt-get install -y gcc python3-dev build-essential python3-venv
 
 python3 -m venv "$install_dir/venv"
 "$install_dir/venv/bin/python" -m pip install --upgrade pip
-"$install_dir/venv/bin/pip" install git+https://github.com/jvanoosterhout/HMD-DGB.git@v1.0.0b4
+"$install_dir/venv/bin/pip" install git+https://github.com/jvanoosterhout/HMD-DGB.git
 
 sudo install -m 600 /dev/null "$env_file"
 sudo tee "$env_file" >/dev/null <<EOF

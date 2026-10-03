@@ -1,14 +1,14 @@
 # Gcontroller
 
-**!WORK IN PROGRES! content is not representative for Gcontroller yet**
+**Work in progress:** This README and the project documentation are still being updated.
 
-[HMD-DGB](https://github.com/jvanoosterhout/HMD-DGB) usage example with hardware and configuration to make dumb systems in my Garage (Dutch: Garage → G) smart and connect them to Home Assistant.
+Gcontroller is a Raspberry Pi Zero 2 W-based controller for connecting garage-door and garden-irrigation equipment to Home Assistant. It uses [HMD-DGB](https://github.com/jvanoosterhout/HMD-DGB) to communicate over MQTT.
 
 ![Finished Gcontroller](images/IMG_5988.jpeg)
 ![Door-device](images/Door-bell-device.png)
 ![Irrigation-device](images/Door-bell-device.png)
 
-**Status:** Working personal build, though still in progress; hardware documentation and software setup are provided for adaptation and replication.
+**Status:** Working personal build. Hardware documentation and software setup are provided so the project can be adapted or replicated.
 
 ## Project Map
 
@@ -21,46 +21,34 @@
 
 ## Overview
 
-The **Gcontroller** is a Raspberry Pi Zero 2 W-based controller designed to manage dumb devices and sensors in a Garage as smart IoT devices. This is my second Pi controller. Its development started in ...  as both a need to prevent expensive replacement of garage door remotes my wife lost and controlling the irrigation of my garden.
+The **Gcontroller** connects devices and sensors in my garage and garden to Home Assistant. It can control the garage door and irrigation valves, and report the garage door's state. This is my second Raspberry Pi controller.
 
 ### History & Motivation
 
-<!-- The desire to create this controller existed for a long time, but development began in Q1 2026 following the major update to my [HMD-DGB](https://github.com/jvanoosterhout/HMD-DGB) project. The primary objectives were straightforward but practical:
+The project grew out of two practical needs: avoiding the cost of replacing an expensive garage-door remote and making it easier to control the garden irrigation system. The design work began in Q2-Q3 2023, after my wife lost a second €60 garage-door remote. The controller was probably operational by Q2 2024, although I did not document much of the development at the time.
 
-- **Monitor water consumption** to know when to refill the water softener with salt
-- **Detect doorbell activation:** We frequently miss the bell while in the garden, and I do not want to invest in a commercial smart doorbell.
-- **Control the doorbell:** Disable the physical ring while maintaining sensor capability for notifications.
+The main goals were to:
 
-A secondary objective arose when the [HMD-DGB](https://github.com/jvanoosterhout/HMD-DGB) project matured at the beginning of Q1 2026: serving as a **test system** for HMD-DGB releases. Other controllers (MV: mechanical ventilation, BK: bathroom lights, and G: garage door and garden irrigation, running the former [GPIOpinAPI](https://gitlab.com/jotd/gpiopinapi) or even older software) manage essential household functions and could not risk crashes from experimental code.
+- Control the garage door without relying on another expensive replacement remote.
+- Get a reminder if the garage door remains open, for example when it is obstructed or does not close fully. The reminder repeats every 10 minutes while the door remains open.
+- Replace two Philips Hue smart plugs used for irrigation and make it easier to add more valves.
 
-In Q1, the Pi already served as a stand-alone test platform for pre-alpha releases. Its purpose was to test whether the principles of [HMD-DGB](https://github.com/jvanoosterhout/HMD-DGB) would work for multiple days in a row. It therefore ran successfully for more than 10 straight days with the [MQTT_duration_run](https://github.com/jvanoosterhout/HMD-DGB/blob/main/Examples/venv_MQTT_project/MQTT_duration_run.py) example.
-
-By mid-Q2 2026, the MKcontroller had reached a form ready for testing alpha releases of HMD-DGB v1.0.0.
-
-By the end of Q2, [HMD-DGB](https://github.com/jvanoosterhout/HMD-DGB) had reached the beta-release stage. During this testing period, I started documenting the project for my own traceability and to share the design so others can replicate or adapt the concepts.
-
-Note that not all wire colors are ideal. I try to reuse as many components as possible. As a result, the [doorbell wiring](#doorbell-wiring) uses an old UTP cable whose clips broke off. The [rectifier](#soldering) was added later using parts I had on hand, so I needed to cut the original wires. The optocoupler is cut into two pieces because I needed only one channel in this controller. -->
+When we moved into our newly built home in 2020, I installed an irrigation system beneath the lawn, with drip lines along the garden borders and two valves. I initially controlled the valves with Philips Hue smart plugs. Each plug needed an adapter, and I wanted the option to add more valves. The controller first used a generic REST API with custom code, then moved to HMD-DGB in Q2 2024. This README documents the first update to the project since then.
 
 ---
 
 ## Requirements
 
 ### Core Functionality
-<!-- - [x] Measure doorbell button presses (for Home Assistant automation → notifications)
-- [x] Enable/disable doorbell ring while maintaining sensor capability (with HA automation to auto-toggle after X hours)
-- [x] Failsafe: Default state on Pi/controller failure is doorbell rings normally
-- [x] Measure hard water consumption -->
-
-### Optional Features
-<!-- - [ ] Measure softened water consumption
-- [ ] Measure utility cupboard temperature
-- [ ] Control ventilation fans (utility cupboard gets warm from city heating system + network equipment + NAS; keeping it cool prevents water softener degradation)
-- [ ] Measure city heating consumption -->
+- Control the garage door through a relay and monitor its state.
+- Connect the controller to Home Assistant through MQTT.
+- Control up to six garden-irrigation valves.
 
 ### Connectivity
-- Ethernet connection with poe
-- GX12-6 connectors for the garage door. 
-- tulip connectors for power and control of the irrigation actuators.
+- Ethernet over PoE.
+- GX12-6 connector for the garage-door wiring.
+- RCA connectors for the irrigation-valve controls.
+- Low-voltage power connector for the valve adapter.
 
 ---
 
@@ -74,27 +62,18 @@ The BOM is stored in [hardware/bom.csv](hardware/bom.csv). The table below is ge
 
 | Category | Component | Details | Qty | Status | Notes |
 |----------|-----------|---------|-----|--------|-------|
-| controller | Raspberry Pi Zero 2 W | Main controller | 1 | required | Single-board computer |
-| network | [Waveshare USB Ethernet HUB HAT for Raspberry Pi Zero](https://www.kiwi-electronics.com/nl/poe-ethernet-usb-hub-hat-voor-rpi-zero-10711) | Gigabit Ethernet and USB connectivity | 1 | required | Required for wired network connection |
-| thermal | [Waveshare aluminium heatsink](https://elektronicavoorjou.nl/product/heatsink-raspberry-pi-zero/) | Thermal management | 1 | required | For Raspberry Pi Zero 2 W |
-| isolation | [2-channel optocoupler module](https://www.tinytronics.nl/en/switches/optocouplers/optocoupler-isolation-module-2-channels) | Signal isolation | 1 | required | Doorbell sensor |
-| power | 100uF 35V capacitor | Power conditioning | 1 | required | Added during assembly |
-| protection | [1N4148 diode](https://www.conrad.nl/nl/p/diotec-ultrasnelle-si-diode-1n4148-sod-27-75-v-150-ma-162280.html) | Doorbell signal protection | 1 | required | 100V 100mA signal diode |
-| connector | [GX12-3 connector](https://www.tinytronics.nl/en/cables-and-connectors/connectors/aviation-style/gx12/gx12-3-connector-set) | Water sensor connection | 2 | required |  |
-| connector | [GX12-4 connector](https://www.tinytronics.nl/en/cables-and-connectors/connectors/aviation-style/gx12/gx12-4-connector-set) | Doorbell sensor and control connection | 1 | required |  |
-| connector | [GX12-2 connector](https://www.tinytronics.nl/en/cables-and-connectors/connectors/aviation-style/gx12/gx12-2-connector-set) | Optional ventilation fan connection | 1 | optional |  |
-| network | [Panel-mount Ethernet extension cable](https://www.kiwi-electronics.com/nl/panel-mount-ethernet-verlengkabel-2542) | Ethernet connection | 1 | required |  |
-| power | [Delock Micro USB connector](https://www.reichelt.com/nl/nl/shop/product/usb_2_0-kabel_micro_b-bus_naar_micro_b-stekker_0_25_m-212024) | Power input | 1 | required |  |
-| connector | [Removable screw terminal 2-pin 3.81mm](https://www.tinytronics.nl/en/cables-and-connectors/connectors/screw-terminals/removable-screw-terminal-2p-3.81mm) | Terminal connection | 1 | required |  |
-| sensor | [YF-B6 water flow sensor](https://www.tinytronics.nl/en/sensors/liquid/yf-b6-water-flow-sensor-brass-g3-4) | Water measurement | 1 | required | G3/4 inch |
-| enclosure | [BOX4U industrial enclosure](https://www.reichelt.com/nl/nl/shop/product/industriele_behuizing_125_x_115_x_58_mm_ip65_lichtgrijs-324314) | Enclosure | 1 | required | 125 x 115 x 58 mm IP65 |
 | enclosure | Kradex enclosure | Alternative enclosure | 1 | alternative | 176 x 126 x 57 mm IP65; used for an earlier version |
-| control | [5V 2-channel relay module](https://www.tinytronics.nl/en/switches/relays/relay-modules/5v-relay-2-channel-high-active-or-low-active) | Doorbell control | 1 | required | High-active or low-active variant |
+| controller | Raspberry Pi Zero 2 W | Main controller | 1 | required | Single-board computer |
+| network | [PoE Ethernet / USB HUB HAT for Raspberry Pi Zero](https://www.berrybase.de/en/poe-ethernet-usb-hub-hat-for-raspberry-pi-zero-1x-rj45-3x-usbisolation) |  | 1 |  |  |
+| control | [5V 8-channel relay module](https://www.berrybase.de/en/5v-8-channel-relay-module) |  | 1 |  |  |
+| connector | [GX12-6 connector](https://www.tinytronics.nl/en/cables-and-connectors/connectors/aviation-style/gx12/gx12-6-connector-set) | Connector for wiring towards garage door sensors and control | 1 | required |  |
+| connector | [RCA connector](https://www.reichelt.com/nl/nl/shop/product/tulp_chassisdeel_inbouw_geisoleerd_verguld_met_gekl_-143) |  | 2-5 |  |  |
+| connector | [RCA connector with bend protection](https://www.reichelt.com/nl/en/shop/product/rca_connector_with_bend_protection_black_gold-plated-6900?search=CSPG%2520SW&) |  | 2-5 |  |  |
+| sensor | [Reed switch](https://www.tinytronics.nl/nl/schakelaars/magneetschakelaars/deur-schakelaar-reed-relais-met-magneet) |  | 2 |  |  |
 | assembly | Wago clamps | Terminal connections | as required | required |  |
-| connector | [3-way JST-SM extension cable](https://www.kiwi-electronics.com/nl/3-weg-jst-sm-verlengkabel-1-meter-1123) | Water sensor cable | 1 | required |  |
-| assembly | Laser-cut mounting plate | Internal mounting | 1 | required |  |
-| assembly | PCB prototyping board | Small wiring board | 1 | required | Approximately 6 x 12 holes |
 | assembly | Jumper cables heat shrink and masking tape | Wiring and assembly | as required | required |  |
+| power | [Hunter losse transformator 24Vac](https://www.doehetzelfberegening.shop/hunter-losse-transformator-24vac.html) |  | 1 |  |  |
+| control | [Hunter PGV 1" magneetklep met flowcontrol](https://irritech.nl/hunter-pgv-1-magneetklep-met-flowcontrol-be.502.104/) |  | 2-5 |  |  |
 
 <!-- BOM:END -->
 
@@ -105,12 +84,12 @@ python3 software/generate-bom-table.py
 ```
 
 
-### Tools Required
+### Required Tools
 - 13mm drill
 - 3mm drill
 - File (to make drill holes square)
 - Soldering iron
-- Wire stripper (striptang)
+- Wire stripper
 - Screwdrivers
 - Digital multimeter (for safety verification)
 
@@ -119,44 +98,26 @@ python3 software/generate-bom-table.py
 ## Pinout & Wiring
 
 ### GPIO Assignments
-<!-- # garage_deur = 24
-# g_roldeur_actief_sensor = 13
-# g_roldeur_open_sensor = 19
-# g_roldeur_dicht_sensor = 26
-# lose IO = (rood/zwart) = 4
-# lose IO = (groen/geel) = 18
-# valve1 = 21
-# valve2 = 20
-# valve3 = 16
-# valve4 = 12 
-# valve5 = 7
-# valve6 = 8
-# spare = 25 -->
 
-
-<!-- | Function | GPIO (BCM) | Notes |
+| Function | GPIO (BCM) | Notes |
 |----------|------|-------|
-| Doorbell Sensor | GPIO 25 | PinIn |
-| Doorbell Relay 0 | GPIO 26 | PinOut |
-| Hard Water Sensor | GPIO 23 | PinCount |
-| Soft Water Sensor | GPIO 24 | PinCount (optional) |
-| Temperature Sensor | **[TBD]** | Optional onewire/I2C |
-| Fan Control | **[TBD]** | Optional PWM or relay | -->
+| Garage door pulse (`garage_deur_puls`) | GPIO 24 | Output to relay R0 |
+| Door active sensor (`g_roldeur_actief_sensor`) | GPIO 13 | Input; door relay sensor switches to GND via GX12 pin 5 |
+| Door open sensor (`g_roldeur_open_sensor`) | GPIO 19 | Input via optocoupler; GX12 pin 6 |
+| Door closed sensor (`g_roldeur_dicht_sensor`) | GPIO 26 | Input; door relay sensor switches to GND via GX12 pin 4 |
+| Loose IO (red/black) | GPIO 4 |  |
+| Loose IO (green/yellow) | GPIO 18 |  |
+| Valve 1 | GPIO 21 |  |
+| Valve 2 | GPIO 20 |  |
+| Valve 3 | GPIO 16 |  |
+| Valve 4 | GPIO 12 |  |
+| Valve 5 | GPIO 7 |  |
+| Valve 6 | GPIO 8 |  |
+| Spare | GPIO 25 |  |
 
-### Garage door wiring
+### Garage-Door Wiring
 
-<!-- The doorbell operates on an 8 V AC transformer that can deliver ... A/W. This makes the correct cable diameter important to prevent the wires from becoming too warm. I did not perform the exact calculation, but knowing that a UTP cable (I had one with broken connectors) can transfer 90 W at 57 V, meaning less than 2 A, and that only four wires are needed, I decided to solder the corresponding colored wires together. This should safely allow more than 3 A.
-
-![wiring_diagram_door_bell](hardware/wiring/generated/door-bell-wireviz.svg)
-
-Note that the external connector is slightly unusual. It simplified assembly of the controller because I only had to work with four wires, two per sensor. The photo below shows the actual implementation of this connector. The BU/RD wires were originally connected directly to the doorbell and came from the transformer and button. I removed these wires from the bell and connected the WH/WH-BK wire to it instead. Reconnecting the BU/RD and WH/WH-BK wires would restore the original state.
-
-![external-connector](images/IMG_5989.jpeg) -->
-
-### Irrigation power and control  wiring
-
-<!-- Water 1 (Hard) & Water 2 (Soft - optional at GPIO24):
-![wiring_diagram_door_bell](hardware/wiring/generated/water-sensor-wireviz.svg) -->
+![Garage-door wiring diagram](hardware/wiring/generated/door-wireviz.svg)
 
 ---
 
@@ -218,70 +179,49 @@ Note that the external connector is slightly unusual. It simplified assembly of 
 ---
 
 ## Software Setup
-Prerequisites:
+### Prerequisites
 - Home Assistant running
 - MQTT broker running
-- Raspberry Pi OS Bookworm 32-bit (lite)
-- Python 3.10, 3.11 or 3.12
+- Raspberry Pi OS Trixie 32-bit (lite)
+- Python 3.13
 
 ### Installation
-The installer targets Bookworm OS and must be run on the Pi with Python 3.10, 3.11, or 3.12. It installs HMD-DGB v1.0.0b4 in a local virtual environment and creates a systemd service. I prefer to perform this setup over SSH.
+Run the installer on the Raspberry Pi. It creates a local virtual environment, installs the current HMD-DGB version from GitHub, and creates and enables a systemd service. I recommend performing the setup over SSH.
 
 ```sh
 git clone https://github.com/jvanoosterhout/Gcontroller.git
 cd Gcontroller
 sudo ./software/install.sh \
-   --service-name g_controller \
+   --service-name Gcontroller \
    --install-dir "$PWD" \
    --broker 192.0.2.10 \
    --port 1883 \
    --username mqtt_user \
    --password 'change-me' \
-   --location meterkast \
+   --location Garage \
    --rate 300
 ```
 
-Replace the example broker, username, and password with your own values. The installer accepts configuration through command-line options only and stores the settings in `/etc/mk_controller.env` with root-only permissions for systemd to load. Check the service with `sudo systemctl status mk_controller` and view logs with `sudo journalctl -u mk_controller`.
+Replace the example broker, username, and password with your own values. The installer accepts configuration through command-line options and stores it in `/etc/Gcontroller.env` with root-only permissions. Check the service with `sudo systemctl status Gcontroller` and view its logs with `sudo journalctl -u Gcontroller`.
 
 ### Configuration
-After installation, import or adapt the retained MQTT configuration in [software/HA_automation.yaml](software/HA_automation.yaml). You can create a new automation, edit it in YAML mode, and then copy and paste the content from [software/HA_automation.yaml](software/HA_automation.yaml). It defines the doorbell and hard-water entities used by the examples in [docs/home-assistant.md](docs/home-assistant.md).
+After installation, create a Home Assistant automation in YAML mode and paste or adapt the configuration in [software/home-assistant-DGB-config-automation.yaml](software/home-assistant-DGB-config-automation.yaml). It publishes the retained MQTT configuration for the garage-door cover, lock switch, and closed-state sensor. The automation examples in [software/home-assistant-automation-helpers.md](software/home-assistant-automation-helpers.md) show how to operate the door and send an alert if it remains open.
 
 ### Home Assistant Integration
-<!-- Doorbell notification and auto-toggle examples (currently AI-generated and not tested): [docs/home-assistant.md](docs/home-assistant.md) -->
+The MQTT configuration exposes the garage door as a cover and provides a switch to temporarily enable operation. Adapt the example automations to your Home Assistant entities and notification service.
 
-### Update HMD-DGB
-In case you like to update the HMD-DGB software 
-- Login to the pi 
-- Activate the venv
-- Install the new version by replacing v1.0.0b4 with the desired one, or by removing @v1.0.0b4 entirely to get the latest commit. 
+### Updating HMD-DGB
+From the installation directory on the Pi, activate the virtual environment and upgrade HMD-DGB:
 
-   `pip install git+https://github.com/jvanoosterhout/HMD-DGB.git@v1.0.0b`
-- In Home Assistant, go to the service device and click `soft restart`.
+```sh
+source venv/bin/activate
+pip install --upgrade git+https://github.com/jvanoosterhout/HMD-DGB.git
+sudo systemctl restart Gcontroller
+```
 
-### Home Assistant interface 
+### Home Assistant Interface
 
-In Home Assistant, you will see the node and service devices:
-| Node      | service       |
-| -------------- | -------------- |
-|![node](images/DGB-node.png) | ![service](images/DGB-service.png) |
-
-The doorbell and water meter devices are also present:
-| Node      | service       |
-| -------------- | -------------- |
-|![door](images/Door-bell-device.png) | ![irrigation](images/Water-meter.png) |
-
-
-
-<!-- ---
-
-## Failsafe Behavior
-
-On power loss or Pi crash, the doorbell operates in its **normal state** (rings) due to the relay design:
-- Relay is wired as **Normally Closed (NC)** on the doorbell trigger
-- When relay is de-energized → doorbell rings normally
-- When relay is energized (via GPIO 26) → doorbell is silenced
-
-This ensures that even if the Pi is completely offline, the doorbell remains functional. -->
+Home Assistant discovers the HMD-DGB node and service devices. The garage-door configuration adds a cover, a lock switch, and a binary sensor that reports whether the door is closed.
 
 ---
 
@@ -294,18 +234,6 @@ This ensures that even if the Pi is completely offline, the doorbell remains fun
   - [MK (utility cupboard, in Dutch: MeterKast → MK)](https://github.com/jvanoosterhout/MKcontroller)
 
 ---
-
 ## License & Disclaimer
 
 This is a personal home automation project shared as-is for educational purposes. Use at your own risk. Electrical work involving relays and/or high voltage should be performed safely and verified before deployment.
-
----
-
-## TODO
-
-- [ ] Add configuration file examples
-- [ ] Add Home Assistant automation examples
-- [ ] Add wiring diagram/schematic
-- [ ] Add photos of assembled controller
-- [ ] Document temperature sensor integration (optional)
-- [ ] Document fan control logic (optional)

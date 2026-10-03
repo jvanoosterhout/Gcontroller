@@ -14,14 +14,14 @@ triggers:
             {"EntityInfo":
                 {
                   "component": "cover",
-                  "name": "Rol deur",
+                  "name": "Rol-deur",
                   "qos": 2,
                   "unique_id": "192-168-70-22-cover-rol-deur",
                   "device_class": "garage",
                   "direct_state_transition": false,
                   "device":
                     {
-                      "name": "Rol-deur",
+                      "name": "Rol deur",
                       "model": "Garage rol-deur",
                       "identifiers": "g-rol-deur",
                       "configuration_url": "http://192-168-70-22",
@@ -38,7 +38,7 @@ triggers:
                   "icon": "mdi:key-chain-variant",
                   "device":
                     {
-                      "name": "Rol-deur",
+                      "name": "Rol deur",
                       "model": "Garage rol-deur",
                       "identifiers": "g-rol-deur",
                       "configuration_url": "http://192-168-70-22",
@@ -46,6 +46,20 @@ triggers:
                     }
                 }
             },
+            {"EntityInfo":
+                {
+                  "component": "binary_sensor",
+                  "name": "Rol-deur is dicht",
+                  "unique_id": "192-168-70-22-binary_sensor-rol-deur-is-dicht",
+                  "device":
+                    {
+                      "name": "Rol deur",
+                      "model": "Garage rol-deur",
+                      "identifiers": "g-rol-deur",
+                      "configuration_url": "http://192-168-70-22",
+                      "suggested_area": "garage"
+                    }
+                }
             }
           ],
           "Pins": [
@@ -54,9 +68,7 @@ triggers:
                   "pin": 24,
                   "ptype": "out",
                   "initial": 0,
-                  "value": 0,
-                  "active_state": false,
-                  "blink": 1
+                  "value": 0
                 }
               },
               {"PinInfo":
@@ -81,6 +93,15 @@ triggers:
                 }
               }
             ],
+          "state_initialization": {
+            "preset_action": [
+              {
+                "unique_id": "192-168-70-22-switch-rol-deur-lock",
+                "call": "set_state",
+                "args": [{"name": "state", "value": "OFF"}]
+              }
+            ]
+          },
           "Bindings": [
             {"BindInfo": {
               "roller_door_lock$state":
@@ -88,7 +109,7 @@ triggers:
                   "start": {"t_0": {"to": "locked"}},
                   "locked": {
                     "t_unlock": {
-                      "all": [{"m": {"$and": [{"unique_id": "192-168-70-22-switch-rol-deur-lock"}, {"payload": "ON"}]}}],
+                      "all": [{"m": {"$and": [{"unique_id": "192-168-70-22-switch-rol-deur-lock"}, {"value": "ON"}]}}],
                       "to": "unlocked",
                       "run": [
                         {"timer": {"name": "AutoLock", "action": "start", "seconds": 5}},
@@ -96,18 +117,18 @@ triggers:
                       ]
                     },
                     "t_command_blocked": {
-                      "all": [{"m": {"$and": [{"unique_id": "192-168-70-22-cover-rol-deur"}, {"$or": [{"payload": "OPEN"}, {"payload": "CLOSE"}, {"payload": "STOP"}]}]}}],
+                      "all": [{"m": {"$and": [{"unique_id": "192-168-70-22-cover-rol-deur"}, {"$or": [{"value": "OPEN"}, {"value": "CLOSE"}, {"value": "STOP"}]}]}}],
                       "to": "locked",
                       "run": {"log": {"msg": "rol-deur command ignored, lock is engaged"}}
                     }
                   },
                   "unlocked": {
                     "t_command": {
-                      "all": [{"m": {"$and": [{"unique_id": "192-168-70-22-cover-rol-deur"}, {"$or": [{"payload": "OPEN"}, {"payload": "CLOSE"}, {"payload": "STOP"}]}]}}],
+                      "all": [{"m": {"$and": [{"unique_id": "192-168-70-22-cover-rol-deur"}, {"$or": [{"value": "OPEN"}, {"value": "CLOSE"}, {"value": "STOP"}]}]}}],
                       "to": "locked",
                       "run": [
                         {"timer": {"name": "AutoLock", "action": "cancel"}},
-                        {"action": {"unique_id": "24", "call": "set_state", "args": [{"state_name": "blink", "state": 1}]}},
+                        {"action": {"unique_id": "24", "call": "set_state", "args": [{"name": "blink", "value": 1}]}},
                         {"action": {"unique_id": "192-168-70-22-switch-rol-deur-lock", "call": "off"}}
                       ]
                     },
@@ -124,6 +145,25 @@ triggers:
                         {"log": {"msg": "timeout while waiting for a rol-deur command, lock engaged"}}
                       ]
                     }
+                  }
+                }
+              }
+            },
+            {"BindInfo": {
+                "roller_door_opened_closed": {
+                  "p_on": {
+                      "all": [{"m": {"$and": [{"unique_id": "26"}, {"value": 1}]}}],
+                      "run": [
+                        {"action": {"unique_id": "192-168-70-22-cover-rol-deur", "call": "closed"}},
+                        {"action": {"unique_id": "192-168-70-22-binary_sensor-rol-deur-is-dicht", "call": "on"}}
+                      ]
+                  },
+                  "p_off": {
+                      "all": [{"m": {"$and": [{"unique_id": "26"}, {"value": 0}]}}],
+                      "run": [
+                        {"action": {"unique_id": "192-168-70-22-cover-rol-deur", "call": "open"}},
+                        {"action": {"unique_id": "192-168-70-22-binary_sensor-rol-deur-is-dicht", "call": "off"}}
+                      ]
                   }
                 }
               }

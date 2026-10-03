@@ -1,7 +1,3 @@
-Wireviz YAML for the Gcontroller rol-deur wiring. Use https://marketplace.visualstudio.com/items?itemName=pomdtr.markdown-kroki to preview the diagram. Optionally you can run [Kroki server](https://docs.kroki.io/kroki/setup/install/) in docker.
-
-
-```kroki-wireviz
 connectors:
   PI Zero W2:
     pins: [GPIO13, GPIO19, GPIO26, GND, 5V, GPIO24]
@@ -145,4 +141,3 @@ tweak:
       shape: none
       fontsize: "1"
       fontcolor: white
-```
