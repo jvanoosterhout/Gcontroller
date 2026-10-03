@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2026-10
+
+### Added
+
+- Added current project and hardware photos to the README.
+- Linked the MVcontroller project from the related-projects section.
+
+### Changed
+
+- Expanded the project history to describe the progression from the custom REST/GPIO backend through reusable GPIOapi to HMD-DGB over MQTT.
+- Clarified the GPIO-GX12-door wiring assignments and updated the README's assembly and image references.
+
 ## 2026-09
 
 ### Added

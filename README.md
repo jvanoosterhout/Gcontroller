@@ -4,9 +4,9 @@
 
 Gcontroller is a Raspberry Pi Zero 2 W-based controller for connecting garage-door and garden-irrigation equipment to Home Assistant. It uses [HMD-DGB](https://github.com/jvanoosterhout/HMD-DGB) to communicate over MQTT.
 
-![Finished Gcontroller](images/IMG_5988.jpeg)
-![Door-device](images/Door-bell-device.png)
-![Irrigation-device](images/Door-bell-device.png)
+![Finished Gcontroller](images/G.jpeg)
+![Door-device](images/Door-device.png)
+<!-- ![Irrigation-device](images/Door-bell-device.png) -->
 
 **Status:** Working personal build. Hardware documentation and software setup are provided so the project can be adapted or replicated.
 
@@ -33,7 +33,11 @@ The main goals were to:
 - Get a reminder if the garage door remains open, for example when it is obstructed or does not close fully. The reminder repeats every 10 minutes while the door remains open.
 - Replace two Philips Hue smart plugs used for irrigation and make it easier to add more valves.
 
-When we moved into our newly built home in 2020, I installed an irrigation system beneath the lawn, with drip lines along the garden borders and two valves. I initially controlled the valves with Philips Hue smart plugs. Each plug needed an adapter, and I wanted the option to add more valves. The controller first used a generic REST API with custom code, then moved to HMD-DGB in Q2 2024. This README documents the first update to the project since then.
+When we moved into our newly built home in 2020, I installed an irrigation system beneath the lawn, with drip lines along the garden borders and two valves. I initially controlled the valves with Philips Hue smart plugs. Each plug needed an adapter, and I wanted the option to add more valves.
+
+The wider home-automation project was guided by a preference for affordable, understandable, and maintainable systems, with Home Assistant as the central control platform. Gcontroller applies those goals to the garage and garden. It was built around a Raspberry Pi Zero 2 W; PoE was a practical choice for the garage, where wired networking and the required parts were already available.
+
+The first version used a generic REST API and a custom GPIO backend. As more controllers and use cases were added, maintaining separate backends became difficult, so GPIO control was extracted into the reusable GPIOapi package in Q2 2024. In Q1-Q2 2026, the project began replacing that REST-based interface with HMD-DGB's MQTT device model. This moves pin-level details and device configuration out of Home Assistant and groups related entities as devices. Gcontroller is running HMD-DGB sinds Q3-2026 at which time this example documentation was also setup.
 
 ---
 
@@ -101,10 +105,10 @@ python3 software/generate-bom-table.py
 
 | Function | GPIO (BCM) | Notes |
 |----------|------|-------|
-| Garage door pulse (`garage_deur_puls`) | GPIO 24 | Output to relay R0 |
-| Door active sensor (`g_roldeur_actief_sensor`) | GPIO 13 | Input; door relay sensor switches to GND via GX12 pin 5 |
-| Door open sensor (`g_roldeur_open_sensor`) | GPIO 19 | Input via optocoupler; GX12 pin 6 |
-| Door closed sensor (`g_roldeur_dicht_sensor`) | GPIO 26 | Input; door relay sensor switches to GND via GX12 pin 4 |
+| Garage door pulse (`garage_deur_puls`) | GPIO 24 | PinOut to relay R0 (R0 routs via GX12 pin 4 & 5)|
+| Door active sensor | GPIO 13 | PinIn to optocoupler via GX12 pin 1 |
+| Door open sensor | GPIO 19 | PinIn via GX12 pin 2 |
+| Door closed sensor | GPIO 26 | PinIn via GX12 pin 3 |
 | Loose IO (red/black) | GPIO 4 |  |
 | Loose IO (green/yellow) | GPIO 18 |  |
 | Valve 1 | GPIO 21 |  |
@@ -118,6 +122,11 @@ python3 software/generate-bom-table.py
 ### Garage-Door Wiring
 
 ![Garage-door wiring diagram](hardware/wiring/generated/door-wireviz.svg)
+
+![G-door-and-irrigation](images/G-door-and-irrigation.jpeg)
+![g-driver-top](images/g-driver-top.jpeg)
+![G-driver-inside](images/G-driver-inside.jpeg)
+![G-closed-sensor](images/G-closed-sensor.jpeg)
 
 ---
 
@@ -133,6 +142,9 @@ python3 software/generate-bom-table.py
    - Drill 3mm holes at the edges of the box marked for the USB and Ethernet connectors
    - File edges and burrs smooth
 
+   
+![G-poe](images/G-poe.jpeg)
+
 3. **Prepare wiring**
    - Pre-cut and strip all internal & external jumpers and wires.
    - Pre-tin connector pins and wires
@@ -144,8 +156,7 @@ python3 software/generate-bom-table.py
 5. **Solder components** (in this order)
    - Pi GPIO headers to the Pi Zero 2 W
    - Wires to the GX12 connectors (do not forget to slide the covers onto the wire bundle first)
-   - Diodes (bridge rectifier) + capacitor + wires to the PCB prototyping board
-![rectifier](images/IMG_5341.jpeg)
+
 
 ### Assembly
 6. **Mount to internal board**
@@ -166,14 +177,11 @@ python3 software/generate-bom-table.py
 9. **Connect wiring**
    - Connect all external connectors to board
    - Re-test with a digital multimeter before shrinking
-![topview](images/IMG_5430.jpeg)
-![inputs-outputs](images/IMG_5431.jpeg)
-![network-power](images/IMG_5432.jpeg)
 10. **Finalize**
     - Heat shrink all joints
     - Label/document all connectors (optional but recommended)
     - Final functional test with HMD-DGB
-![final](images/IMG_5988.jpeg)
+![final](images/G.jpeg)
 
 
 ---
@@ -229,7 +237,7 @@ Home Assistant discovers the HMD-DGB node and service devices. The garage-door c
 
 - **[HMD-DGB](https://github.com/jvanoosterhout/HMD-DGB)** - Home automation control platform
 - **Other Controllers:**
-  - MV (Mechanical Ventilation)
+  - [MV (Mechanical Ventilation)](https://github.com/jvanoosterhout/MVcontroller)
   - BK (Bathroom Lights, in Dutch: BadKamer → BK)
   - [MK (utility cupboard, in Dutch: MeterKast → MK)](https://github.com/jvanoosterhout/MKcontroller)
 
